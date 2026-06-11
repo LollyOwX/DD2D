@@ -2,11 +2,13 @@ package main;
 
 import javax.swing.JPanel;
 import entity.Player;
-import object.SuperObject;
 import tile.TileManager;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
 import entity.Entity;
-import entity.Player;
 
 public class GamePanel extends JPanel implements Runnable {
 
@@ -25,8 +27,16 @@ public class GamePanel extends JPanel implements Runnable {
     public final int worldWidth = tileSize * maxWorldCol;
     public final int worldHeight = tileSize * maxWorldRow;
 
+	public int gameState;
+	public final int playState = 1;
+	public final int pauseState = 2;
+	public final int dialogueState = 3;
+	public final int cinematicState = 4;
+	public final int titleState = 5;
+	public final int combatState = 6;
+
     //FPS
-    int FPS = 60;
+    final int FPS = 60;
 
     TileManager tileM = new TileManager(this);
     public KeyHandler KeyH = new KeyHandler(this);
@@ -36,19 +46,14 @@ public class GamePanel extends JPanel implements Runnable {
     public AssetSetter aSetter = new AssetSetter(this);
 
     public Player player = new Player(this, KeyH);
-
-	public SuperObject obj[] = new SuperObject[10];
+	public Entity obj[] = new Entity[10];
 	public Entity npc[] = new Entity[10];
+	public Entity monster[] = new Entity[20];
+
+	ArrayList<Entity> entityList = new ArrayList<>();
 	public UI ui = new UI(this);
 	public EventHandler eHandler = new EventHandler(this);
 	Thread gameThread;
-
-	public int gameState;
-	public final int playState = 1;
-	public final int pauseState = 2;
-    public final int dialogueState = 3;
-    public final int cinematicState = 4;
-	public final int titleState = 5;
 
 	
 	public GamePanel() {	
@@ -61,21 +66,33 @@ public class GamePanel extends JPanel implements Runnable {
 	public void setupGame() {
 		aSetter.setObject();
 		aSetter.setNpc();
+		aSetter.setMonster();
 		playMusic(0);
 		gameState = titleState;
 	}
 	public void zoomInOut(int i) {
-		int oldWorldWidth = tileSize * maxWorldCol; //2400 1200 = 0.5
-		tileSize += i;
-		double newWorldWidth = tileSize * maxWorldCol; //2350
-		player.speed = (int) (newWorldWidth/600);
-		double multiplier = (double) newWorldWidth/oldWorldWidth;
-		System.out.println("tileSize:"+tileSize);
-		System.out.println("player World X:"+player.worldX);
-		double newPlayerWorldX = player.worldX * multiplier;
-		double newPlayerWorldY = player.worldY * multiplier;
-		player.worldX = newPlayerWorldX;
-		player.worldY = newPlayerWorldY;
+		int newTileSize = tileSize + i;
+		// Limiti per non rompere tutto
+		if(newTileSize < 16 || newTileSize > 96) return;
+
+		int oldWorldWidth = tileSize * maxWorldCol;
+		tileSize = newTileSize;
+		double newWorldWidth = tileSize * maxWorldCol;
+
+		// Riscala la posizione del player proporzionalmente
+		double multiplier = newWorldWidth / oldWorldWidth;
+		player.worldX *= multiplier;
+		player.worldY *= multiplier;
+		player.speed = Math.max(1, (int)(newWorldWidth / 600));
+
+		// Ricarica tutte le immagini con il nuovo tileSize
+		tileM.getTileImage();
+		player.getPlayerImage();
+		for(int n = 0; n < npc.length; n++) {
+			if(npc[n] instanceof entity.Npc_HumanRedWorker) {
+				((entity.Npc_HumanRedWorker)npc[n]).getImage();
+			}
+		}
 	}
 	public void startGameThread() {		
 		gameThread = new Thread(this);
@@ -113,6 +130,11 @@ public class GamePanel extends JPanel implements Runnable {
                     npc[i].update();
                 }
             }
+			for(int i = 0; i < monster.length; i++) {
+				if(monster[i] != null) {
+					monster[i].update();
+				}
+			}
 		}
 		if(gameState == pauseState) {
 		}
@@ -125,17 +147,42 @@ public class GamePanel extends JPanel implements Runnable {
         }
         else {
             tileM.draw(g2);
-            for(int i = 0; i < obj.length; i++) {
-                if(obj[i] != null) {
-                    obj[i].draw(g2, this);
-                }
-            }
-            for (int i = 0; i < npc.length; i++) {
-                if (npc[i] != null) {
-                    npc[i].draw(g2);
-                }
-            }
             player.draw(g2);
+			//add entites to list
+			entityList.add(player);
+			for(int i = 0; i < npc.length; i++) {
+				if(npc[i] != null) {
+					entityList.add(npc[i]);
+				}
+			}
+			for(int i = 0; i < obj.length; i++) {
+				if(obj[i] != null) {
+					entityList.add(obj[i]);
+				}
+			}
+			for(int i = 0; i < monster.length; i++) {
+				if(monster[i] != null) {
+					entityList.add(monster[i]);
+				}
+			}
+
+			//sort
+			Collections.sort(entityList, new Comparator<Entity>() {
+				public int compare(Entity e1, Entity e2) {
+					int result = Integer.compare((int)e1.worldY, (int)e2.worldY);
+					return result;
+				}
+
+			});
+			//draw
+			for(int i = 0; i < entityList.size(); i++) {
+				entityList.get(i).draw(g2);
+			}
+			//reset list
+			for(int i = 0; i < entityList.size(); i++) {
+				entityList.remove(i);
+			}
+
             ui.draw(g2);
         }
 		g2.dispose();

@@ -59,8 +59,8 @@ public class CollisionChecker {
 			if(gp.obj[i] != null) {
 				entity.solidArea.x = (int)(entity.worldX) + entity.solidArea.x;
 				entity.solidArea.y = (int)(entity.worldY) + entity.solidArea.y;
-				gp.obj[i].solidArea.x = gp.obj[i].worldX + gp.obj[i].solidArea.x;
-				gp.obj[i].solidArea.y = gp.obj[i].worldY + gp.obj[i].solidArea.y;
+				gp.obj[i].solidArea.x = (int) (gp.obj[i].worldX + gp.obj[i].solidArea.x);
+				gp.obj[i].solidArea.y = (int) (gp.obj[i].worldY + gp.obj[i].solidArea.y);
 				switch(entity.direction) {
 				case "up":
 					entity.solidArea.y -= entity.speed;
@@ -161,11 +161,28 @@ public class CollisionChecker {
         }
         return index;
     }
+
+    // FIX: la collisione NPC→Player avviene solo se si muovono in direzioni opposte (si "scontrano")
     public void checkPlayer(Entity entity) {
+        // Determina la direzione del player
+        String playerDir = gp.player.direction;
+
+        // Controlla se le direzioni sono opposte (scontro frontale)
+        boolean oppositeDirections = false;
+        switch(entity.direction) {
+            case "up":    oppositeDirections = "down".equals(playerDir);  break;
+            case "down":  oppositeDirections = "up".equals(playerDir);    break;
+            case "left":  oppositeDirections = "right".equals(playerDir); break;
+            case "right": oppositeDirections = "left".equals(playerDir);  break;
+        }
+
+        if(!oppositeDirections) return; // non si stanno scontrando, nessuna collisione
+
         entity.solidArea.x = (int)(entity.worldX) + entity.solidArea.x;
         entity.solidArea.y = (int)(entity.worldY) + entity.solidArea.y;
         gp.player.solidArea.x = (int)(gp.player.worldX + gp.player.solidArea.x);
         gp.player.solidArea.y = (int)(gp.player.worldY + gp.player.solidArea.y);
+
         switch(entity.direction) {
             case "up":
                 entity.solidArea.y -= entity.speed;
@@ -198,16 +215,3 @@ public class CollisionChecker {
         gp.player.solidArea.y = gp.player.solidAreaDefaultY;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

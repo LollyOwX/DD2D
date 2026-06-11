@@ -1,9 +1,9 @@
 package main;
 
+import entity.Entity;
 import object.OBJ_Left_Health;
 import object.OBJ_Middle_Health;
 import object.OBJ_Right_Health;
-import object.SuperObject;
 
 import java.awt.*;
 import java.awt.Font;
@@ -43,9 +43,9 @@ public class UI {
             e.printStackTrace();
         }
         //HUD Health
-        SuperObject lefthealth = new OBJ_Left_Health(gp);
-        SuperObject middlehealth = new OBJ_Middle_Health(gp);
-        SuperObject righthealth = new OBJ_Right_Health(gp);
+        Entity lefthealth = new OBJ_Left_Health(gp);
+        Entity middlehealth = new OBJ_Middle_Health(gp);
+        Entity righthealth = new OBJ_Right_Health(gp);
 
         health_left_full = lefthealth.image;
         health_left_half = lefthealth.image2;

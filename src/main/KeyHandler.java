@@ -8,7 +8,6 @@ import java.awt.event.KeyListener;
 public class KeyHandler implements KeyListener{
 	public boolean upPressed, downPressed, leftPressed, rightPressed, enterPressed, escPressed;
 	GamePanel gp;
-    Player pl;
 
 	
 	public KeyHandler(GamePanel gp) {
@@ -35,6 +34,7 @@ public class KeyHandler implements KeyListener{
                 if (code == KeyEvent.VK_ENTER) {
                     if (gp.ui.commandNum == 0) {
                         gp.ui.titleScreenState = 1;
+                        gp.ui.commandNum = 0; // reset cursore per schermata classe
                         gp.stopMusic();
                     }
                     if (gp.ui.commandNum == 1) {
@@ -60,23 +60,26 @@ public class KeyHandler implements KeyListener{
                 }
                 if (code == KeyEvent.VK_ENTER) {
                     if (gp.ui.commandNum == 0) {
+                        gp.player.playerClass = "Warrior";
+                        gp.player.getPlayerImage(); // FIX: ricarica i PNG della classe
                         gp.gameState = gp.playState;
                         gp.playMusic(0);
-                        pl.playerClass = "Warrior";
-
                     }
                     if (gp.ui.commandNum == 1) {
+                        gp.player.playerClass = "Mage";
+                        gp.player.getPlayerImage(); // FIX: ricarica i PNG della classe
                         gp.gameState = gp.playState;
                         gp.playMusic(0);
-                        pl.playerClass = "Mage";
                     }
                     if (gp.ui.commandNum == 2) {
+                        gp.player.playerClass = "Archer";
+                        gp.player.getPlayerImage(); // FIX: ricarica i PNG della classe
                         gp.gameState = gp.playState;
                         gp.playMusic(0);
-                        pl.playerClass = "Archer";
                     }
                     if (gp.ui.commandNum == 3) {
                         gp.ui.titleScreenState = 0;
+                        gp.ui.commandNum = 0;
                     }
                 }
             }
@@ -94,13 +97,13 @@ public class KeyHandler implements KeyListener{
                 if (code == KeyEvent.VK_D) {
                     rightPressed = true;
                 }
-                //ZOOM-
+                //ZOOM+
                 if (code == KeyEvent.VK_UP) {
                     gp.zoomInOut(1);
                 }
+                //ZOOM-
                 if (code == KeyEvent.VK_DOWN) {
                     gp.zoomInOut(-1);
-                    //ZOOM+
                 }
                 //Pause
                 if (code == KeyEvent.VK_P) {
@@ -115,6 +118,7 @@ public class KeyHandler implements KeyListener{
                     escPressed = true;
                     gp.gameState = gp.titleState;
                     gp.ui.titleScreenState = 0;
+                    gp.ui.commandNum = 0;
                 }
             } else if (gp.gameState == gp.pauseState) {
                 if (code == KeyEvent.VK_P) {
@@ -143,16 +147,3 @@ public class KeyHandler implements KeyListener{
 		}
 	}
 }
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	

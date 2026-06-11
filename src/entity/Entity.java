@@ -33,6 +33,10 @@ public class Entity {
     public int maxLife;
     public int life;
 
+    // Campi ex-SuperObject
+    public BufferedImage image, image2, image3, image4;
+    public boolean collision = false;
+    public String name;
 
     public Entity(GamePanel gp) {
         this.gp = gp;
@@ -75,12 +79,19 @@ public class Entity {
 
     public void setAction() {
     }
+
     public void speak() {
+        // FIX: se non c'è dialogo all'indice corrente, resetta a 0 (non a 5)
         if(dialogues[dialoguesIndex] == null) {
-            dialoguesIndex = 5;
+            dialoguesIndex = 0;
         }
         gp.ui.currentDialogue = dialogues[dialoguesIndex];
         dialoguesIndex++;
+
+        // FIX: dopo aver impostato il dialogo, resetta l'indice se il prossimo è null
+        if(dialoguesIndex >= dialogues.length || dialogues[dialoguesIndex] == null) {
+            dialoguesIndex = 0;
+        }
 
         switch(gp.player.direction) {
             case "up":
@@ -100,6 +111,7 @@ public class Entity {
                 break;
         }
     }
+
     public void update() {
         setAction();
 

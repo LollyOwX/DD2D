@@ -1,26 +1,19 @@
 package object;
 
+import entity.Entity;
 import main.GamePanel;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
 
-public class OBJ_Left_Health extends SuperObject{
+public class OBJ_Left_Health extends Entity {
     GamePanel gp;
     public OBJ_Left_Health(GamePanel gp) {
-        this.gp = gp;
+        super(gp);
         name = "Left_Health";
-        try {
-            image = ImageIO.read(getClass().getResourceAsStream("/bars/bar_health_left_full.png"));
-            image2 = ImageIO.read(getClass().getResourceAsStream("/bars/bar_health_left_half.png"));
-            image3 = ImageIO.read(getClass().getResourceAsStream("/bars/bar_health_left_low.png"));
-            image4 = ImageIO.read(getClass().getResourceAsStream("/bars/bar_all_left_empty.png"));
-            image = uTool.scaleImage(image, gp.tileSize, gp.tileSize);
-            image2 = uTool.scaleImage(image2, gp.tileSize, gp.tileSize);
-            image3 = uTool.scaleImage(image3, gp.tileSize, gp.tileSize);
-            image4 = uTool.scaleImage(image4, gp.tileSize, gp.tileSize);
-        }catch(IOException e) {
-            e.printStackTrace();
-        }
+        image = setup("/bars/bar_health_left_full.png");
+        image2 = setup("/bars/bar_health_left_half.png");
+        image3 = setup("/bars/bar_health_left_low.png");
+        image4 = setup("/bars/bar_all_left_empty.png");
     }
 }
